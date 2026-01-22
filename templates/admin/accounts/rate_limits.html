@@ -1,0 +1,123 @@
+{% extends "admin/base_site.html" %} {% block content %}
+<h1>Rate limit dashboard</h1>
+
+<form method="get" class="admin-search">
+  <input
+    type="text"
+    name="q"
+    value="{{ query }}"
+    placeholder="user id / username / ip"
+  />
+  <button type="submit">Search</button>
+</form>
+
+<p>Now: {{ now }}</p>
+
+{% if results %}
+<h2>User results</h2>
+{% for r in results %}
+<h3>{{ r.user.username }} (id={{ r.user.pk }})</h3>
+<ul>
+  <li>locked_until (user.attr): {{ r.user.locked_until }}</li>
+  <li>locked_until (context): {{ r.locked_until }}</li>
+  {% if r.meta %}
+  <li>
+    last failure: {{ r.meta.last_failure_at }} (ip: {{ r.meta.last_failure_ip
+    }})
+  </li>
+  <li>failure reason: {{ r.meta.reason }}</li>
+  {% endif %}
+  <li>failures: {{ r.failures }}</li>
+  <li>failures_ttl: {{ r.failures_ttl }}</li>
+  <li>lock_marker: {{ r.lock_marker }}</li>
+  <li>lock_ttl: {{ r.lock_ttl }}</li>
+</ul>
+{% endfor %} {% endif %} {% if ip %} {% if username_info %}
+<h2>Username info</h2>
+<ul>
+  <li>username: {{ username_info.username }}</li>
+  {% if username_info.meta %}
+  <li>
+    last failure: {{ username_info.meta.last_failure_at }} (ip: {{
+    username_info.meta.last_failure_ip }})
+  </li>
+  <li>failure reason: {{ username_info.meta.reason }}</li>
+  {% endif %}
+  <li>failures: {{ username_info.failures }}</li>
+  <li>failures_ttl: {{ username_info.failures_ttl }}</li>
+  <li>lock_marker: {{ username_info.lock_marker }}</li>
+  <li>lock_ttl: {{ username_info.lock_ttl }}</li>
+</ul>
+{% endif %}
+<h2>IP {{ ip.ip }}</h2>
+<ul>
+  {% if ip_meta %}
+  <li>
+    last failure: {{ ip_meta.last_failure_at }} (ip: {{ ip_meta.last_failure_ip
+    }})
+  </li>
+  <li>failure reason: {{ ip_meta.reason }}</li>
+  {% endif %}
+  <li>failures: {{ ip.failures }}</li>
+  <li>failures_ttl: {{ ip.failures_ttl }}</li>
+  <li>lock_marker: {{ ip.lock_marker }}</li>
+  <li>lock_ttl: {{ ip.lock_ttl }}</li>
+</ul>
+{% endif %} {% if axes_attempts %}
+<h2>Recent django-axes attempts</h2>
+<table>
+  <thead>
+    <tr>
+      <th>When</th>
+      <th>IP</th>
+      <th>Username</th>
+      <th>Failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for a in axes_attempts %}
+    <tr>
+      <td>{{ a.attempt_time }}</td>
+      <td>{{ a.ip_address }}</td>
+      <td>
+        {% if a.username %} {{ a.username }} {% else %}
+        <em>None</em>
+        {% if ip_related_usernames %}
+        <div>Possible usernames from this IP:</div>
+        <ul>
+          {% for u in ip_related_usernames %}
+          <li>{{ u }}</li>
+          {% endfor %}
+        </ul>
+        {% elif query %}
+        <div>Search term: {{ query }}</div>
+        {% endif %} {% endif %}
+      </td>
+      <td>{{ a.failures }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %} {% if axes_recent_attempts %}
+<h2>Recent django-axes attempts (overall)</h2>
+<table>
+  <thead>
+    <tr>
+      <th>When</th>
+      <th>IP</th>
+      <th>Username</th>
+      <th>Failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for a in axes_recent_attempts %}
+    <tr>
+      <td>{{ a.attempt_time }}</td>
+      <td>{{ a.ip_address }}</td>
+      <td>{{ a.username }}</td>
+      <td>{{ a.failures }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %} {% endblock %}

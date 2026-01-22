@@ -1,0 +1,21 @@
+{% extends "allauth/layouts/base.html" %} {% load i18n crispy_forms_tags %} {% block authentication %}
+<h1 class="h3 mb-4">{% trans "Sign in" %}</h1>
+
+<form method="post" action="{{ action_url|default:request.path }}">
+    {% csrf_token %} {{ form|crispy }}
+
+    <div class="d-grid">
+        <button type="submit" class="btn btn-primary">{% trans "Sign in" %}</button>
+    </div>
+</form>
+
+<p class="mt-3">
+    <a href="{% url 'account_signup' %}">{% trans "Create an account" %}</a>
+    ·
+    <a href="{% url 'account_reset_password' %}">{% trans "Forgot password?" %}</a>
+</p>
+
+{% if providers %}
+<hr />
+<p>{% trans "Or sign in with" %}</p>
+{% include "socialaccount/snippets/provider_list.html" %} {% endif %} {% endblock %}

@@ -1,0 +1,33 @@
+from __future__ import annotations
+
+from .env import env
+
+SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT")
+SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE")
+CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE")
+
+SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS")
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool("SECURE_HSTS_INCLUDE_SUBDOMAINS")
+SECURE_HSTS_PRELOAD = env.bool("SECURE_HSTS_PRELOAD")
+
+SECURE_CONTENT_TYPE_NOSNIFF = env.bool("SECURE_CONTENT_TYPE_NOSNIFF")
+SECURE_BROWSER_XSS_FILTER = env.bool("SECURE_BROWSER_XSS_FILTER")
+
+proxy_header = env("SECURE_PROXY_SSL_HEADER")
+if proxy_header:
+    try:
+        header_name, header_value = proxy_header.split(",", 1)
+        SECURE_PROXY_SSL_HEADER = (header_name.strip(), header_value.strip())
+    except ValueError as exc:
+        raise RuntimeError(
+            "Invalid SECURE_PROXY_SSL_HEADER format in env — expected 'HEADER_NAME,VALUE'"
+        ) from exc
+
+X_FRAME_OPTIONS = env("X_FRAME_OPTIONS")
+
+SESSION_COOKIE_SAMESITE = env("SESSION_COOKIE_SAMESITE")
+CSRF_COOKIE_SAMESITE = env("CSRF_COOKIE_SAMESITE")
+
+ACCOUNTS_LOGIN_MAX_ATTEMPTS = env.int("ACCOUNTS_LOGIN_MAX_ATTEMPTS")
+ACCOUNTS_LOGIN_WINDOW_SECONDS = env.int("ACCOUNTS_LOGIN_WINDOW_SECONDS")
+ACCOUNTS_LOCKOUT_SECONDS = env.int("ACCOUNTS_LOCKOUT_SECONDS")

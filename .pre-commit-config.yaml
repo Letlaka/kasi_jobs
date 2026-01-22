@@ -1,0 +1,31 @@
+repos:
+  - repo: https://github.com/rtts/djhtml
+    # Pin to latest released tag instead of mutable "main".
+    # Latest as of Oct 2025: 3.0.10
+    rev: "3.0.10"
+    hooks:
+      - id: djhtml
+      - id: djcss
+      - id: djjs
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version (matches the example in the official repo).
+    rev: "v0.14.6"
+    hooks:
+      # Run the linter with fixes.
+      - id: ruff-check
+        args: ["--fix"] # hook already runs `ruff check`, just add `--fix`
+        types_or: [python, pyi]
+      # Run the formatter.
+      - id: ruff-format
+        types_or: [python, pyi]
+
+  - repo: local
+    hooks:
+      - id: mypy-venv
+        name: mypy (venv)
+        entry: ".venv/bin/python3"
+        language: system
+        types_or: [python, pyi]
+        pass_filenames: false
+        args: ["-m", "mypy", "--config-file=pyproject.toml", "."]

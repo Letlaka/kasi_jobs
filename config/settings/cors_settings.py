@@ -1,0 +1,9 @@
+from __future__ import annotations
+
+from .env import env
+
+CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS")
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS")
+CORS_ALLOW_CREDENTIALS = env.bool("CORS_ALLOW_CREDENTIALS")
+CORS_ALLOW_METHODS = env.list("CORS_ALLOW_METHODS")
+CORS_URLS_REGEX = env("CORS_URLS_REGEX")
