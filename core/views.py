@@ -9,7 +9,20 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 
+from utilities.validators import sanitize_text_field
+
 logger = logging.getLogger("utilities.audit")
+
+
+def _sanitize_payload(obj: object) -> object:
+    """Recursively sanitize string values in the payload to avoid logging PII."""
+    if isinstance(obj, str):
+        return sanitize_text_field(obj)
+    if isinstance(obj, dict):
+        return {k: _sanitize_payload(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_sanitize_payload(v) for v in obj]
+    return obj
 
 
 class IndexView(TemplateView):
@@ -57,7 +70,8 @@ class CSPReportView(View):
             payload = json.loads(request.body.decode("utf-8"))
         except (json.JSONDecodeError, UnicodeDecodeError):
             payload = {"raw": request.body.decode("utf-8", "ignore")}
-        logger.warning("CSP violation report", extra={"csp_report": payload})
+        safe_payload = _sanitize_payload(payload)
+        logger.warning("CSP violation report", extra={"csp_report": safe_payload})
         return JsonResponse({}, status=204)
 
     # allow GET for quick smoke tests (returns simple JSON)

@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import structlog
 
-from .event_codes import EventCode, LogName
+if TYPE_CHECKING:
+    from .event_codes import EventCode, LogName
 
 LoggerType = structlog.stdlib.BoundLogger
 

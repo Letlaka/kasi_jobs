@@ -60,6 +60,14 @@ class EventCode(IntEnum):
     AUDIT_EXPORT_STARTED = 9000
     AUDIT_EXPORT_COMPLETED = 9001
     AUDIT_CONFIG_CHANGED = 9002
+    # --- Validation / PII (9xxx) ---
+    AUDIT_VALIDATION_PHONE_FAILED = 9003
+    AUDIT_VALIDATION_EMAIL_FAILED = 9004
+    AUDIT_VALIDATION_SA_ID_FAILED = 9005
+    AUDIT_VALIDATION_SANITIZE_TRUNCATED = 9006
+    AUDIT_VALIDATION_DECIMAL_FAILED = 9007
+    AUDIT_CONSENT_MISSING = 9008
+
 
 # Map event_name -> EventCode for fast lookup
 EVENT_NAME_TO_CODE: Final[dict[str, EventCode]] = {code.name: code for code in EventCode}

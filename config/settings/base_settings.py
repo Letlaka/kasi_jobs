@@ -117,6 +117,11 @@ INSTALLED_APPS = [
     "core",
     "accounts",
     "utilities",
+    "profiles",
+    "jobs",
+    "applications",
+    "payments",
+    "reviews",
 ]
 
 
