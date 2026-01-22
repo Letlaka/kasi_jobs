@@ -10,7 +10,6 @@ urlpatterns = [
     path("admin/accounts/rate-limits/", admin_views.rate_limit_dashboard, name="admin-rate-limits"),
     path("admin/", admin.site.urls),
     path("accounts/", include("allauth.urls")),
-    path("", include("departments.urls")),
     # Core app (health checks and misc endpoints)
     path("", include("core.urls")),
 ]

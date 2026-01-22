@@ -116,8 +116,6 @@ INSTALLED_APPS = [
     # Local apps
     "core",
     "accounts",
-    "app_reports",
-    "departments",
     "utilities",
 ]
 
