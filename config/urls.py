@@ -14,4 +14,6 @@ urlpatterns = [
     path("", include("core.urls")),
     # API routes
     path("api/v1/", include("api.urls")),
+    # Private file serving for profiles (signed URL access)
+    path("profiles/", include("profiles.urls")),
 ]

@@ -1,0 +1,51 @@
+name: Dependency Audit
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: '0 3 * * 1' # Weekly on Monday at 03:00 UTC
+  workflow_dispatch:
+
+jobs:
+  audit:
+    name: Run dependency audits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install project (best-effort)
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            # Attempt to install the package declared in pyproject.toml
+            pip install . || true
+          fi
+
+      - name: Install audit tools
+        run: pip install pip-audit safety
+
+      - name: Run pip-audit
+        run: |
+          pip-audit --format=json > pip_audit.json || true
+
+      - name: Run Safety (OSS Index / PyPI database)
+        run: |
+          # safety can operate on an installed environment; capture JSON
+          safety check --full-report --json > safety_report.json || true
+
+      - name: Upload audit artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-reports
+          path: |
+            pip_audit.json
+            safety_report.json

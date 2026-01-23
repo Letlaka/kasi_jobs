@@ -104,17 +104,26 @@ def pseudonymize_user(
 
     if secret:
         user_hmac = f"hmac_sha256:{_compute_user_hmac(secret.encode('utf-8'), identifier)}"
+        with contextlib.suppress(Exception):
+            structlog.contextvars.bind_contextvars(user_hmac=user_hmac)
+
+        event_dict["user"] = user_hmac
+        event_dict["user_hmac"] = user_hmac
+
+        for key in ("user_id", "actor", "email"):
+            event_dict.pop(key, None)
     else:
-        user_hmac = "no_hmac_secret"
-
-    with contextlib.suppress(Exception):
-        structlog.contextvars.bind_contextvars(user_hmac=user_hmac)
-
-    event_dict["user"] = user_hmac
-    event_dict["user_hmac"] = user_hmac
-
-    for key in ("user_id", "actor", "email"):
-        event_dict.pop(key, None)
+        # HMAC secret missing: redact identifiers rather than emitting a weak/fixed token.
+        redacted_token = "[REDACTED_NO_HMAC]"  # noqa: S105
+        for key in ("user", "user_id", "actor", "email"):
+            event_dict.pop(key, None)
+        event_dict["user"] = redacted_token
+        event_dict["user_hmac"] = redacted_token
+        # Log a single warning if possible; do not raise to keep logging available.
+        with contextlib.suppress(Exception):
+            structlog.get_logger(__name__).warning(
+                "HMAC_SECRET_KEY not set; identifiers redacted in logs"
+            )
 
     return event_dict
 

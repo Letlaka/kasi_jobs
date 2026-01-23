@@ -149,6 +149,11 @@ def build_pg_restore_command(
 
 def run_subprocess(command: list[str], env: dict[str, str]) -> None:
     cmdline = " ".join(shlex.quote(p) for p in command)
+    # Validate the command to ensure no untrusted shell metacharacters
+    # are present. We only accept a list of args (no shell=True), and
+    # disallow characters that would be meaningful to a shell if an
+    # argument were mistakenly interpreted by a shell wrapper.
+    validate_subprocess_command(command)
     log_event(
         logger,
         log_name=LogName.AUDIT,
@@ -177,3 +182,34 @@ def run_subprocess(command: list[str], env: dict[str, str]) -> None:
             command_line=pretty,
         )
         raise CommandError(f"Command failed with exit code {exc.returncode}: {pretty}") from exc
+
+
+def validate_subprocess_command(command: list[str]) -> None:
+    """Perform lightweight safety checks on subprocess command lists.
+
+    This function raises `CommandError` if the command appears suspicious.
+    It is intentionally conservative: it forbids a small set of characters
+    that are meaningful to shells (e.g. pipes, redirections, command
+    separators). The code path uses list args and never `shell=True`, but
+    this validator helps catch cases where a command element may have been
+    constructed from untrusted input.
+    """
+    if not isinstance(command, list) or not command:
+        raise CommandError("Invalid command: expected non-empty list of arguments")
+
+    # disallow shell metacharacters in any argument
+    forbidden = set(";|&$`><*?~()[]{}")
+    for part in command:
+        if not isinstance(part, str):
+            raise CommandError("Invalid command argument type; expected str")
+        if any(ch in forbidden for ch in part):
+            raise CommandError(f"Command contains forbidden character in part: {part}")
+
+    # Ensure the executable (first element) is an absolute path or a simple
+    # basename without suspicious chars.
+    exe = Path(command[0])
+    if not exe.is_absolute():
+        # require basename to be alphanumeric-ish
+        name = exe.name
+        if not name or any(ch.isspace() for ch in name) or any(ch in forbidden for ch in name):
+            raise CommandError(f"Unsafe executable name: {command[0]}")

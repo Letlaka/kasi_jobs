@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import shlex
-import subprocess
 import uuid
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol
@@ -47,7 +46,7 @@ def _ctx_value(key: str) -> str | None:
     )
     if callable(getter):
         try:
-            return getter().get(key)
+            return getter().get(key) # pyright: ignore[reportAttributeAccessIssue]
         except (AttributeError, TypeError):
             return uuid.uuid4().hex
 
@@ -261,19 +260,11 @@ def _handle_restore(options: Options, stdout: StdoutProtocol, style: StyleProtoc
         event_id=_ctx_value("event_id") or uuid.uuid4().hex,
     )
     try:
-        subprocess.run(command, env=env, check=True)  # noqa: S603
-    except subprocess.CalledProcessError as exc:
-        log_event(
-            logger,
-            log_name=LogName.SYSTEM,
-            event_code=EventCode.SYSTEM_ERROR,
-            event="pg_restore failed",
-            exit_code=exc.returncode,
-            command_line=cmdline,
-            trace_id=_ctx_value("trace_id"),
-            event_id=_ctx_value("event_id") or uuid.uuid4().hex,
-        )
-        raise CommandError(f"Restore failed with exit code {exc.returncode}") from exc
+        # Use the centralized runner which performs validation and logging.
+        run_subprocess(command, env)
+    except CommandError:
+        # `run_subprocess` already logged; re-raise as CommandError for caller.
+        raise
 
     stdout.write(style.SUCCESS("Restore complete."))
     log_event(

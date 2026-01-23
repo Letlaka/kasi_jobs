@@ -160,5 +160,17 @@
         "logger": "utilities.audit",
         "level": "WARNING",
         "timestamp": "2026-01-23T19:52:03.916701Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T22:18:58.731364Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T22:19:00.924859Z"
     }
 ]

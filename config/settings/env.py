@@ -15,7 +15,9 @@ if environ is not None:
         SITE_ID=(int, 1),
         # Django settings
         DJANGO_DEBUG=(bool, False),
-        DJANGO_SECRET_KEY=(str, "DJANGO_SECRET_KEY"),
+        # Do NOT provide a usable default for secret keys; require explicit setting.
+        DJANGO_SECRET_KEY=(str, None),
+        HMAC_SECRET_KEY=(str, None),
         DJANGO_ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1"]),
         # Email settings
         EMAIL_PORT=(int, 587),
@@ -72,7 +74,7 @@ if environ is not None:
         # Content Security Policy (CSP) settings
         CSP_DEFAULT_SRC=(list, ["'self'"]),
         CSP_SCRIPT_SRC=(list, ["'self'"]),
-        CSP_STYLE_SRC=(list, ["'self'", "'unsafe-inline'"]),
+        CSP_STYLE_SRC=(list, ["'self'"]),
         CSP_IMG_SRC=(list, ["'self'", "data:"]),
         CSP_FONT_SRC=(list, ["'self'", "https://fonts.gstatic.com"]),
         CSP_CONNECT_SRC=(list, ["'self'"]),

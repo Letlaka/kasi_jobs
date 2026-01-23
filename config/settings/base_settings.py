@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 # Local modular settings (import modules; we'll merge their UPPERCASE symbols
 # into this namespace below)
 from . import (
@@ -76,6 +78,12 @@ for _mod in (
 
 # Basic / core settings
 SECRET_KEY = env("DJANGO_SECRET_KEY")
+# Fail-fast for critical secrets: do not allow predictable or missing keys.
+if not SECRET_KEY or str(SECRET_KEY).strip() in ("", "DJANGO_SECRET_KEY"):
+    raise ImproperlyConfigured(
+        "Missing or insecure DJANGO_SECRET_KEY environment variable. "
+        "Set a strong secret in the environment before starting the application."
+    )
 DEBUG = env.bool("DJANGO_DEBUG")
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
@@ -104,6 +112,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "allauth",
     "allauth.account",
+    "allauth.mfa",
     "auditlog",
     "simple_history",
     "csp",
@@ -144,6 +153,7 @@ MIDDLEWARE = [
     "axes.middleware.AxesMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "accounts.security.mfa_middleware.RequireMFAForAdminMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_structlog.middlewares.RequestMiddleware",
@@ -216,6 +226,11 @@ SECURITY_TEAM_EMAIL = env("SECURITY_TEAM_EMAIL")
 
 # HMAC / signing settings
 HMAC_SECRET_KEY = env("HMAC_SECRET_KEY")
+if not HMAC_SECRET_KEY or str(HMAC_SECRET_KEY).strip() == "":
+    raise ImproperlyConfigured(
+        "Missing HMAC_SECRET_KEY environment variable. This key is required "
+        "to pseudonymise identifiers in logs and must be set to a secret value."
+    )
 
 
 # django-auditlog global settings (POPIA / privacy friendly defaults)
