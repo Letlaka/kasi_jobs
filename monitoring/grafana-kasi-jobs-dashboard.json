@@ -1,0 +1,40 @@
+{
+    "dashboard": {
+        "id": null,
+        "title": "Kasi Jobs - API Overview",
+        "panels": [
+            {
+                "type": "graph",
+                "title": "API Endpoint Errors (rate)",
+                "targets": [
+                    {
+                        "expr": "sum(rate(api_endpoint_errors_total{env=\"$env\"}[5m])) by (endpoint)",
+                        "legendFormat": "{{endpoint}}"
+                    }
+                ]
+            },
+            {
+                "type": "graph",
+                "title": "Throttle Hits (rate)",
+                "targets": [
+                    {
+                        "expr": "sum(rate(api_throttle_hits_total{env=\"$env\"}[5m])) by (scope)",
+                        "legendFormat": "{{scope}}"
+                    }
+                ]
+            },
+            {
+                "type": "graph",
+                "title": "Application Accept p95 (s)",
+                "targets": [
+                    {
+                        "expr": "histogram_quantile(0.95, sum(rate(application_accept_latency_seconds_bucket{env=\"$env\"}[5m])) by (le))",
+                        "legendFormat": "p95"
+                    }
+                ]
+            }
+        ],
+        "schemaVersion": 16
+    },
+    "overwrite": false
+}

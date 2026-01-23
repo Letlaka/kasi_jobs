@@ -12,4 +12,6 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     # Core app (health checks and misc endpoints)
     path("", include("core.urls")),
+    # API routes
+    path("api/v1/", include("api.urls")),
 ]

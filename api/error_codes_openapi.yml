@@ -1,0 +1,38 @@
+components:
+  schemas:
+    ErrorPayload:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Stable machine-readable error code
+        detail:
+          type: string
+          description: Human-readable explanation
+      required: [code, detail]
+
+    ErrorCodes:
+      type: string
+      description: |
+        Canonical error codes used in API `code` payloads. Clients should
+        rely on these values for programmatic handling.
+      enum:
+        - application_invalid
+        - application_not_pending
+        - application_no_job
+        - application_already_processed
+        - job_not_open
+        - not_authorized
+        - invalid_request
+        - internal_error
+
+  x-error-mapping:
+    # Optional convenience mapping from code -> suggested HTTP status.
+    application_invalid: 400
+    application_not_pending: 409
+    application_no_job: 400
+    application_already_processed: 409
+    job_not_open: 409
+    not_authorized: 403
+    invalid_request: 400
+    internal_error: 500

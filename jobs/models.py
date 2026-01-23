@@ -31,7 +31,16 @@ class Job(AuditedModel):
     hourly_rate = models.DecimalField(max_digits=8, decimal_places=2)
 
     posted_at = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=True)
+
+    # Replace boolean `is_active` with explicit lifecycle `status` to enforce
+    # job lifecycle transitions and avoid invalid combinations.
+    class JobStatus(models.TextChoices):
+        OPEN = "open", "Open"
+        CLOSED = "closed", "Closed"
+        CANCELLED = "cancelled", "Cancelled"
+        COMPLETED = "completed", "Completed"
+
+    status = models.CharField(max_length=32, choices=JobStatus.choices, default=JobStatus.OPEN)
 
     def __str__(self) -> str:
         return str(self.title)
@@ -39,6 +48,11 @@ class Job(AuditedModel):
     class Meta:
         indexes: ClassVar[list[models.Index]] = [
             models.Index(fields=["poster"]),
+            models.Index(fields=["posted_at"]),
+            models.Index(fields=["status"]),
+            # composite index to support queries filtering by status and
+            # ordering by posted_at (e.g. ?status=open)
+            models.Index(fields=["status", "posted_at"], name="jobs_status_posted_at_idx"),
         ]
 
     def clean(self) -> None:

@@ -1,6 +1,7 @@
 import json
 import logging
 
+from django.conf import settings
 from django.db import connections
 from django.db.utils import OperationalError
 from django.http import HttpRequest, JsonResponse
@@ -8,6 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
+from services.dispatch import count_background_receivers
 
 from utilities.validators import sanitize_text_field
 
@@ -50,8 +52,21 @@ class HealthView(View):
 
     def get(self, _request: HttpRequest) -> JsonResponse:
         db_ok = self._db_ok()
-        status = 200 if db_ok else 503
-        return JsonResponse({"database": "ok" if db_ok else "unavailable"}, status=status)
+        # In production, ensure at least one background task receiver is registered.
+        receivers_ok = True
+        env = getattr(settings, "ENVIRONMENT", None) or getattr(settings, "ENV", "local")
+        try:
+            if env == "production":
+                receivers_ok = count_background_receivers() > 0
+        except (ImportError, AttributeError, RuntimeError) as err:
+            logger.exception("error checking background task receivers: %s", err)
+            receivers_ok = False
+
+        status_code = 200 if (db_ok and receivers_ok) else 503
+        payload = {"database": "ok" if db_ok else "unavailable"}
+        if env == "production":
+            payload["background_task_receivers"] = "ok" if receivers_ok else "none_registered"
+        return JsonResponse(payload, status=status_code)
 
     # Allow HEAD requests to act like GET for health checks
     head = get

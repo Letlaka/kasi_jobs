@@ -110,6 +110,7 @@ INSTALLED_APPS = [
     "django_countries",
     "phonenumber_field",
     "django_filters",
+    "rest_framework_simplejwt.token_blacklist",
     "django_structlog",
     "django_prometheus",
     "axes",
@@ -131,6 +132,7 @@ SITE_ID = int(raw_site_id) if raw_site_id not in (None, "") else 1
 
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
+    "api.middleware.ApiExceptionMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "csp.middleware.CSPMiddleware",

@@ -1,0 +1,164 @@
+[
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-22T20:35:08.510821Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-22T20:35:14.298551Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T17:47:19.249449Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T17:47:23.167138Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T17:47:28.340215Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T17:48:23.820632Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T17:48:25.396744Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T17:48:29.509298Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T17:48:30.821155Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T17:48:33.783380Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T17:48:44.001860Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:49:14.911461Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:49:16.850239Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:49:17.995658Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:49:18.974514Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:51:12.318318Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:51:13.292243Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:51:13.497532Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:51:13.687888Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:51:13.887111Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:51:14.843735Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:51:34.901348Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:51:38.502347Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:51:41.456521Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:51:43.096441Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:51:52.083412Z"
+    },
+    {
+        "message": "CSP violation report",
+        "logger": "utilities.audit",
+        "level": "WARNING",
+        "timestamp": "2026-01-23T19:52:03.916701Z"
+    }
+]

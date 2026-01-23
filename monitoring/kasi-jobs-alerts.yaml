@@ -1,0 +1,41 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: kasi-jobs-basic-alerts
+  labels:
+    role: alert-rules
+spec:
+  groups:
+    - name: api-error-alerts
+      rules:
+        - alert: ApiEndpointErrorsSpike
+          expr: increase(api_endpoint_errors_total[5m]) > 5
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Spike in API endpoint errors"
+            description: "api_endpoint_errors_total increased by more than 5 in 5m. Investigate recent deploys and logs."
+
+    - name: throttle-alerts
+      rules:
+        - alert: ApiThrottleHitsSpike
+          expr: increase(api_throttle_hits_total[5m]) > 10
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Spike in API throttle hits"
+            description: "api_throttle_hits_total increased by more than 10 in 5m. Inspect top clients and throttle configuration."
+
+    - name: latency-alerts
+      rules:
+        - alert: AcceptP95LatencyHigh
+          expr: |
+            histogram_quantile(0.95, sum(rate(application_accept_latency_seconds_bucket[5m])) by (le)) > 1.0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "High p95 latency for application acceptance"
+            description: "p95 of application_accept_latency_seconds over 5m is > 1.0s. Investigate DB and service latency."

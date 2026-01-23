@@ -1,0 +1,994 @@
+openapi: 3.0.3
+info:
+  title: Fleet/School Shuttle API
+  version: 1.0.0
+  description: API documentation for Fleet/School Shuttle API endpoints
+paths:
+  /api/v1/applications/:
+    get:
+      operationId: applications_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - applications
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedApplicationReadList'
+          description: ''
+    post:
+      operationId: applications_create
+      tags:
+      - applications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApplicationCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ApplicationCreate'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationCreate'
+          description: ''
+  /api/v1/applications/{id}/:
+    get:
+      operationId: applications_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - applications
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationRead'
+          description: ''
+    put:
+      operationId: applications_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - applications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationRead'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApplicationRead'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ApplicationRead'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationRead'
+          description: ''
+    patch:
+      operationId: applications_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - applications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedApplicationRead'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedApplicationRead'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedApplicationRead'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationRead'
+          description: ''
+    delete:
+      operationId: applications_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - applications
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/applications/{id}/accept/:
+    post:
+      operationId: applications_accept_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - applications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationRead'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApplicationRead'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ApplicationRead'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationRead'
+          description: ''
+  /api/v1/applications/{id}/reject/:
+    post:
+      operationId: applications_reject_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - applications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationRead'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApplicationRead'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ApplicationRead'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationRead'
+          description: ''
+  /api/v1/auth/token/:
+    post:
+      operationId: auth_token_create
+      description: 'Takes a set of user credentials and returns an access and refresh
+        JSON web
+
+        token pair to prove the authentication of those credentials.'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/v1/auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: 'Takes a refresh type JSON web token and returns an access type
+        JSON web
+
+        token if the refresh token is valid.'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/v1/auth/token/verify/:
+    post:
+      operationId: auth_token_verify_create
+      description: 'Takes a token and indicates if it is valid.  This view provides
+        no
+
+        information about a token''s fitness for a particular use.'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenVerify'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenVerify'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenVerify'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenVerify'
+          description: ''
+  /api/v1/jobs/:
+    get:
+      operationId: jobs_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - jobs
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedJobList'
+          description: ''
+    post:
+      operationId: jobs_create
+      tags:
+      - jobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Job'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Job'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Job'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+          description: ''
+  /api/v1/jobs/{id}/:
+    get:
+      operationId: jobs_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this job.
+        required: true
+      tags:
+      - jobs
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+          description: ''
+    put:
+      operationId: jobs_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this job.
+        required: true
+      tags:
+      - jobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Job'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Job'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Job'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+          description: ''
+    patch:
+      operationId: jobs_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this job.
+        required: true
+      tags:
+      - jobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedJob'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedJob'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedJob'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+          description: ''
+    delete:
+      operationId: jobs_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this job.
+        required: true
+      tags:
+      - jobs
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/jobs/{id}/applications/:
+    get:
+      operationId: jobs_applications_retrieve
+      description: 'List or create applications scoped to this job.
+
+
+        GET  /jobs/{id}/applications/  -> list applications for job (poster/admin
+        view)
+
+        POST /jobs/{id}/applications/  -> create application as authenticated seeker'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this job.
+        required: true
+      tags:
+      - jobs
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationRead'
+          description: ''
+    post:
+      operationId: jobs_applications_create
+      description: 'List or create applications scoped to this job.
+
+
+        GET  /jobs/{id}/applications/  -> list applications for job (poster/admin
+        view)
+
+        POST /jobs/{id}/applications/  -> create application as authenticated seeker'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this job.
+        required: true
+      tags:
+      - jobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApplicationCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ApplicationCreate'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationCreate'
+          description: ''
+  /api/v1/profiles/:
+    get:
+      operationId: profiles_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - profiles
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSeekerProfileList'
+          description: ''
+  /api/v1/profiles/{id}/:
+    get:
+      operationId: profiles_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this seeker profile.
+        required: true
+      tags:
+      - profiles
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeekerProfile'
+          description: ''
+components:
+  schemas:
+    ApplicationCreate:
+      type: object
+      description: 'Serializer for creating an application within a job context.
+
+
+        Exposes only fields that a seeker may set when applying.'
+      properties:
+        cover_note:
+          type: string
+        proposed_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+    ApplicationRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        job:
+          type: integer
+          readOnly: true
+        seeker:
+          type: integer
+          readOnly: true
+        cover_note:
+          type: string
+          readOnly: true
+        proposed_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+        applied_at:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ApplicationReadStatusEnum'
+          readOnly: true
+      required:
+      - applied_at
+      - cover_note
+      - id
+      - job
+      - proposed_rate
+      - seeker
+      - status
+    ApplicationReadStatusEnum:
+      enum:
+      - pending
+      - accepted
+      - rejected
+      - withdrawn
+      type: string
+      description: '* `pending` - Pending
+
+        * `accepted` - Accepted
+
+        * `rejected` - Rejected
+
+        * `withdrawn` - Withdrawn'
+    Job:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        poster:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        location:
+          type: string
+          maxLength: 255
+        skills_needed:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skill'
+          readOnly: true
+        estimated_hours:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        hourly_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        posted_at:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/JobStatusEnum'
+      required:
+      - description
+      - estimated_hours
+      - hourly_rate
+      - id
+      - location
+      - posted_at
+      - poster
+      - skills_needed
+      - title
+    JobStatusEnum:
+      enum:
+      - open
+      - closed
+      - cancelled
+      - completed
+      type: string
+      description: '* `open` - Open
+
+        * `closed` - Closed
+
+        * `cancelled` - Cancelled
+
+        * `completed` - Completed'
+    PaginatedApplicationReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationRead'
+    PaginatedJobList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Job'
+    PaginatedSeekerProfileList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeekerProfile'
+    PatchedApplicationRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        job:
+          type: integer
+          readOnly: true
+        seeker:
+          type: integer
+          readOnly: true
+        cover_note:
+          type: string
+          readOnly: true
+        proposed_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+        applied_at:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ApplicationReadStatusEnum'
+          readOnly: true
+    PatchedJob:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        poster:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        location:
+          type: string
+          maxLength: 255
+        skills_needed:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skill'
+          readOnly: true
+        estimated_hours:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        hourly_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        posted_at:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/JobStatusEnum'
+    SeekerProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        is_verified:
+          type: boolean
+          readOnly: true
+        bio:
+          type: string
+        skills:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skill'
+          readOnly: true
+        hourly_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+          description: Optional hourly rate estimate
+        availability_notes:
+          type: string
+          maxLength: 255
+        has_transport:
+          type: boolean
+        willing_to_travel_km:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          nullable: true
+          description: Maximum distance the worker is willing to travel from their
+            base location
+        id_verified:
+          type: boolean
+          readOnly: true
+      required:
+      - id
+      - id_verified
+      - is_verified
+      - skills
+      - user
+    Skill:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 64
+      required:
+      - id
+      - name
+    TokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - password
+      - refresh
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenVerify:
+      type: object
+      properties:
+        token:
+          type: string
+          writeOnly: true
+      required:
+      - token
+    ErrorPayload:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Stable machine-readable error code
+        detail:
+          type: string
+          description: Human-readable explanation
+      required:
+      - code
+      - detail
+    ErrorCodes:
+      type: string
+      description: 'Canonical error codes used in API `code` payloads. Clients should
+
+        rely on these values for programmatic handling.
+
+        '
+      enum:
+      - application_invalid
+      - application_not_pending
+      - application_no_job
+      - application_already_processed
+      - job_not_open
+      - not_authorized
+      - invalid_request
+      - internal_error
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+x-error-mapping:
+  application_invalid: 400
+  application_not_pending: 409
+  application_no_job: 400
+  application_already_processed: 409
+  job_not_open: 409
+  not_authorized: 403
+  invalid_request: 400
+  internal_error: 500
