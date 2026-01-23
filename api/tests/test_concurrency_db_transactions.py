@@ -40,7 +40,7 @@ def test_concurrent_accepts_with_db_transactions() -> None:
         hourly_rate="20.00",
     )
 
-    application = svc.Application.objects.create(job=job, seeker=seeker)  # type: ignore[attr-defined]
+    application = svc.Application.objects.create(job=job, seeker=seeker)
 
     results = []
 

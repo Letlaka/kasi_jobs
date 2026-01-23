@@ -12,7 +12,4 @@ __all__ = [
 # NOTE: don't import submodules at package import time. Importing
 # service modules here causes Django to try loading models during
 # app registry population which raises `AppRegistryNotReady`.
-# Import submodules explicitly where needed, e.g.:
-#     from services import applications_service
-# or
-#     import services.applications_service as svc
+# Import submodules explicitly where needed.

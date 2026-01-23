@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import JsonResponse
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from django.http import HttpRequest, HttpResponse
 
 from api.error_codes import INTERNAL_ERROR
 from api.errors import ApiError
@@ -18,7 +23,7 @@ class ApiExceptionMiddleware:
     - For other exceptions, log and return a 500 with `internal_error` code.
     """
 
-    def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]):
+    def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]) -> None:
         self.get_response = get_response
 
     def __call__(self, request: HttpRequest) -> HttpResponse:

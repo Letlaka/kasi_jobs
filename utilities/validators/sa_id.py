@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -47,13 +47,13 @@ def validate_sa_id_number(national_id: str) -> None:
         year = int(dob_part[0:2])
         month = int(dob_part[2:4])
         day = int(dob_part[4:6])
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         current_two_digit = now.year % 100
         century = 1900 if year > current_two_digit else 2000
         full_year = century + year
-        dob = datetime(full_year, month, day)
+        dob = datetime(full_year, month, day, tzinfo=UTC)
         if dob > now:
-            dob = datetime(full_year - 100, month, day)
+            dob = datetime(full_year - 100, month, day, tzinfo=UTC)
             if dob > now:
                 raise ValidationError(
                     _("ID number date of birth is in the future."), code="invalid"

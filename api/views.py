@@ -1,5 +1,7 @@
 # no typing imports required here
 
+import contextlib
+import logging
 from typing import Any
 
 from applications.models import Application
@@ -47,6 +49,8 @@ from .throttle_scopes import (
     THROTTLE_JOB,
 )
 
+logger = logging.getLogger(__name__)
+
 
 class JobViewSet(viewsets.ModelViewSet):
     serializer_class = JobSerializer
@@ -90,7 +94,7 @@ class JobViewSet(viewsets.ModelViewSet):
         },
     )
     def applications(
-        self, request: Request, pk: object = None, *args: object, **kwargs: object
+        self, request: Request, pk: object = None, *_args: object, **_kwargs: object
     ) -> Response:
         """List or create applications scoped to this job.
 
@@ -120,7 +124,7 @@ class JobViewSet(viewsets.ModelViewSet):
         try:
             job = Job.objects.get(pk=pk)  # type: ignore[attr-defined]
         except Job.DoesNotExist:
-            raise Http404()
+            raise Http404() from None
         job_status = getattr(job, "status", None)
         if job_status is not None and job_status != Job.JobStatus.OPEN:
             return Response(
@@ -131,12 +135,9 @@ class JobViewSet(viewsets.ModelViewSet):
         serializer = ApplicationCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(seeker=request.user, job=job)
-        # metrics: application created
-        try:
-            env = getattr(settings, "ENVIRONMENT", None) or getattr(settings, "ENV", "local")
+        # metrics: application created (best-effort)
+        with contextlib.suppress(Exception):
             safe_inc(APPLICATIONS_CREATED)
-        except Exception:
-            pass
         read_serializer = ApplicationReadSerializer(serializer.instance)
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
@@ -209,15 +210,11 @@ class ApplicationViewSet(viewsets.ModelViewSet):
             seeker_param = self.request.query_params.get("seeker")
             status_param = self.request.query_params.get("status")
             if job_param:
-                try:
+                with contextlib.suppress(Exception):
                     qs = qs.filter(job_id=int(job_param))
-                except Exception:
-                    pass
             if seeker_param:
-                try:
+                with contextlib.suppress(Exception):
                     qs = qs.filter(seeker_id=int(seeker_param))
-                except Exception:
-                    pass
             if status_param:
                 qs = qs.filter(status=status_param)
 
@@ -252,14 +249,14 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         },
     )
     def accept(
-        self, request: Request, pk: object = None, *args: object, **kwargs: object
+        self, request: Request, pk: object = None, *_args: object, **_kwargs: object
     ) -> Response:
         # Fetch the application directly so we can return 403 for unauthorized
         # users (instead of a 404 from the queryset filtering in `get_queryset`).
         try:
             app = Application.objects.select_related("job").get(pk=pk)  # type: ignore[attr-defined]
         except Application.DoesNotExist:
-            raise Http404()
+            raise Http404() from None
         # only job poster or staff can accept
         job = getattr(app, "job", None)
         if not (request.user.is_staff or getattr(job, "poster", None) == request.user):
@@ -273,28 +270,23 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         try:
             self.check_throttles(request)
         except Throttled:
-            try:
+            with contextlib.suppress(Exception):
                 env = getattr(settings, "ENVIRONMENT", None) or getattr(settings, "ENV", "local")
                 safe_inc(THROTTLE_HITS, env, THROTTLE_APPLICATION_ACCEPT)
-            except Exception:
-                pass
             raise
         try:
             accept_application(app, request.user)
         except ApiError as exc:
-            try:
+            with contextlib.suppress(Exception):
                 env = getattr(settings, "ENVIRONMENT", None) or getattr(settings, "ENV", "local")
                 safe_inc(API_ENDPOINT_ERRORS, env, "application.accept", "POST", str(exc.status))
-            except Exception:
-                pass
             return Response(exc.to_payload(), status=exc.status)
-        except Exception:
+        except Exception as exc:
             # Unexpected failures should not leak internals to clients.
-            try:
+            logger.exception("Unexpected error in accept: %s", exc)
+            with contextlib.suppress(Exception):
                 env = getattr(settings, "ENVIRONMENT", None) or getattr(settings, "ENV", "local")
                 safe_inc(API_ENDPOINT_ERRORS, env, "application.accept", "POST", "500")
-            except Exception:
-                pass
             return Response({"code": INTERNAL_ERROR, "detail": "internal server error"}, status=500)
         return Response({"status": "accepted"})
 
@@ -316,12 +308,12 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         },
     )
     def reject(
-        self, request: Request, pk: object = None, *args: object, **kwargs: object
+        self, request: Request, pk: object = None, *_args: object, **_kwargs: object
     ) -> Response:
         try:
             app = Application.objects.select_related("job").get(pk=pk)  # type: ignore[attr-defined]
         except Application.DoesNotExist:
-            raise Http404()
+            raise Http404() from None
         job = getattr(app, "job", None)
         if not (request.user.is_staff or getattr(job, "poster", None) == request.user):
             return Response(
@@ -333,27 +325,22 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         try:
             self.check_throttles(request)
         except Throttled:
-            try:
+            with contextlib.suppress(Exception):
                 env = getattr(settings, "ENVIRONMENT", None) or getattr(settings, "ENV", "local")
                 safe_inc(THROTTLE_HITS, env, THROTTLE_APPLICATION_REJECT)
-            except Exception:
-                pass
             raise
         try:
             reject_application(app, request.user)
         except ApiError as exc:
-            try:
+            with contextlib.suppress(Exception):
                 env = getattr(settings, "ENVIRONMENT", None) or getattr(settings, "ENV", "local")
                 safe_inc(API_ENDPOINT_ERRORS, env, "application.reject", "POST", str(exc.status))
-            except Exception:
-                pass
             return Response(exc.to_payload(), status=exc.status)
-        except Exception:
-            try:
+        except Exception as exc:
+            logger.exception("Unexpected error in reject: %s", exc)
+            with contextlib.suppress(Exception):
                 env = getattr(settings, "ENVIRONMENT", None) or getattr(settings, "ENV", "local")
                 safe_inc(API_ENDPOINT_ERRORS, env, "application.reject", "POST", "500")
-            except Exception:
-                pass
             return Response({"code": INTERNAL_ERROR, "detail": "internal server error"}, status=500)
         return Response({"status": "rejected"})
 

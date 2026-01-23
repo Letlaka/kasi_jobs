@@ -5,7 +5,8 @@ from applications.models import Application
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from jobs.models import Job
-from services import applications_service as svc, dispatch
+from services.applications_service import accept_application
+from services.dispatch import background_task_requested
 
 
 @pytest.mark.django_db
@@ -37,10 +38,10 @@ def test_emit_background_task_invokes_receiver_after_commit(
     monkeypatch.setattr(transaction, "on_commit", lambda func: func())
 
     # connect receiver
-    dispatch.background_task_requested.connect(receiver)
+    background_task_requested.connect(receiver)
     try:
         # call the service which schedules emit_background_task on commit
-        svc.accept_application(application, poster)
+        accept_application(application, poster)
 
         # after the service returns, the on_commit callback should have fired
         if len(events) < 1:
@@ -56,4 +57,4 @@ def test_emit_background_task_invokes_receiver_after_commit(
                  "does not match application.pk {application.pk!r}"
             )
     finally:
-        dispatch.background_task_requested.disconnect(receiver)
+        background_task_requested.disconnect(receiver)

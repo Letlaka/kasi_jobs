@@ -8,9 +8,12 @@ action to make intentions obvious and to centralize future checks.
 from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING
 
 from django.conf import settings
-from django.http import HttpRequest
+
+if TYPE_CHECKING:
+    from django.http import HttpRequest
 
 
 class WorkflowActionMixin:

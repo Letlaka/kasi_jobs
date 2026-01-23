@@ -27,6 +27,9 @@ from services.dispatch import emit_background_task
 from utilities.app_logging.event_codes import EventCode, LogName
 from utilities.app_logging.helpers import get_logger, log_event
 
+# Backwards-compatible alias some callers/tests expect
+ApplicationError = ApiError
+
 
 def accept_application(application: object, user: object) -> None:
     logger = get_logger(__name__)
@@ -39,7 +42,7 @@ def accept_application(application: object, user: object) -> None:
     try:
         with transaction.atomic():
             # Import models lazily to avoid touching Django ORM at module import time
-            from applications import models as app_models
+            from applications import models as app_models  # noqa: PLC0415
 
             locked_app = (
                 app_models.Application.objects.select_for_update()  # type: ignore[attr-defined]
@@ -131,7 +134,7 @@ def reject_application(application: object, user: object) -> None:
     try:
         with transaction.atomic():
             # Import models lazily to avoid touching Django ORM at module import time
-            from applications import models as app_models
+            from applications import models as app_models  # noqa: PLC0415
 
             locked_app = (
                 app_models.Application.objects.select_for_update()  # type: ignore[attr-defined]
@@ -204,3 +207,28 @@ def reject_application(application: object, user: object) -> None:
                 "by_user": getattr(user, "id", None),
             },
         )
+
+
+# Backwards-compatible lazy exports: some callers/tests access model symbols
+# from this module (e.g., `services.applications_service.Application`). We
+# avoid importing `applications.models` at module import time to prevent
+# touching the ORM before Django's app registry is ready. Provide a
+# module-level `__getattr__` that imports models lazily when accessed.
+
+
+def __getattr__(name: str) -> object:  # pragma: no cover - runtime laziness
+    if name in ("Application", "ApplicationAction", "ACTION_ACCEPT", "ACTION_REJECT"):
+        from applications import models as app_models  # noqa: PLC0415
+
+        try:
+            return getattr(app_models, name)
+        except AttributeError as exc:
+            raise AttributeError(f"module 'applications.models' has no attribute '{name}'") from exc
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+
+
+__all__ = [
+    "__getattr__",
+    "accept_application",
+    "reject_application",
+]

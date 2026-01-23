@@ -24,7 +24,7 @@ def test_concurrent_accepts_only_one_succeeds(monkeypatch: pytest.MonkeyPatch) -
         hourly_rate="15.00",
     )
 
-    application = svc.Application.objects.create(job=job, seeker=seeker)  # type: ignore[attr-defined]
+    application = svc.Application.objects.create(job=job, seeker=seeker)
 
     # track metric helper calls
     calls = {"inc": 0, "obs": 0}

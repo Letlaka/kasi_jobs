@@ -7,7 +7,11 @@ so the code continues to work when prometheus_client isn't installed
 
 from __future__ import annotations
 
-from typing import Any
+import contextlib
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from prometheus_client import Counter, Histogram  # pragma: no cover
 
 from django.conf import settings
 
@@ -64,28 +68,23 @@ except (ImportError, RuntimeError):  # pragma: no cover
     ) = THROTTLE_HITS = None
 
 
-def safe_inc(counter: Any | None, *labels: object) -> None:
+def safe_inc(counter: Counter | None, *labels: object) -> None:
     """Increment a counter if available.
 
     Labels may be passed when the metric wasn't pre-labeled.
     """
     if counter is None:
         return
-    try:
-        # metrics objects are typed as Any above so mypy won't complain
+    with contextlib.suppress(Exception):
+        # metrics objects are typed via TYPE_CHECKING so mypy won't complain
         if labels:
             counter.labels(*labels).inc()
         else:
             counter.inc()
-    except Exception:
-        # metric failures must not impact application logic
-        return
 
 
-def safe_observe(hist: Any | None, value: float) -> None:
+def safe_observe(hist: Histogram | None, value: float) -> None:
     if hist is None:
         return
-    try:
+    with contextlib.suppress(Exception):
         hist.observe(value)
-    except Exception:
-        return
