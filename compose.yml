@@ -1,0 +1,372 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kasi_jobs:1.0.0
+    # External DB/Redis are provided on the `backend` network as containers named `postgresql` and `redis`.
+    # Ensure your .env points to those hosts or rely on these environment overrides.
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings
+      DJANGO_ENV: dev
+      DATABASE_HOST: ${DATABASE_HOST:-postgresql}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+    ports:
+      - "8000:8000"
+    # keep explicit env earlier merged
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://127.0.0.1:8000/healthz" ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+    # For development you may want to mount the source tree. Remove the volume for production builds.
+    volumes:
+      - ./:/app:delegated
+      - app_venv:/app/.venv
+    networks:
+      - backend
+    secrets:
+      - DJANGO_SECRET_KEY
+      - DJANGO_DEBUG
+      - ALLOWED_HOSTS
+      - SITE_ID
+      - EMAIL_BACKEND
+      - EMAIL_HOST
+      - EMAIL_PORT
+      - EMAIL_USE_TLS
+      - EMAIL_HOST_USER
+      - EMAIL_HOST_PASSWORD
+      - DEFAULT_FROM_EMAIL
+      - CONTACT_EMAIL
+      - SECURITY_TEAM_EMAIL
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+      - REDIS_HOST
+      - REDIS_PORT
+      - REDIS_URL
+      - REDIS_CACHE_URL
+      - REDIS_SESSIONS_DB
+      - CELERY_BROKER_URL
+      - CELERY_RESULT_BACKEND
+      - CELERY_TASK_RESULT_EXPIRES
+      - HMAC_SECRET_KEY
+      - LOGGING_AUDIT_FALLBACK_ENABLED
+      - AUDITLOG_INCLUDE_ALL_MODELS
+      - AUDITLOG_EXCLUDE_TRACKING_FIELDS
+      - AUDITLOG_DISABLE_REMOTE_ADDR
+      - SECURE_SSL_REDIRECT
+      - SESSION_COOKIE_SECURE
+      - CSRF_COOKIE_SECURE
+      - SECURE_HSTS_SECONDS
+      - SECURE_HSTS_INCLUDE_SUBDOMAINS
+      - SECURE_HSTS_PRELOAD
+      - SECURE_CONTENT_TYPE_NOSNIFF
+      - SECURE_BROWSER_XSS_FILTER
+      - SECURE_PROXY_SSL_HEADER
+      - X_FRAME_OPTIONS
+      - SESSION_COOKIE_SAMESITE
+      - CSRF_COOKIE_SAMESITE
+      - CORS_ALLOW_ALL_ORIGINS
+      - CORS_ALLOWED_ORIGINS
+      - CORS_ALLOW_CREDENTIALS
+      - CORS_ALLOW_HEADERS
+      - CORS_ALLOW_METHODS
+      - CORS_URLS_REGEX
+      - CSP_REPORT_ONLY
+      - CSP_REPORT_URI
+      - CSP_DEFAULT_SRC
+      - CSP_SCRIPT_SRC
+      - CSP_STYLE_SRC
+      - CSP_IMG_SRC
+      - CSP_FONT_SRC
+      - CSP_CONNECT_SRC
+      - CSP_FRAME_SRC
+      - CSP_INCLUDE_NONCE_IN
+      - AXES_ENABLED
+      - AXES_FAILURE_LIMIT
+      - AXES_COOLOFF_TIME
+      - AXES_LOCKOUT_PARAMETERS
+      - AXES_USERNAME_FORM_FIELD
+      - AXES_IPWARE_META_PRECEDENCE_ORDER
+      - AXES_CACHE
+      - AXES_HANDLER
+      - AXES_RESET_ON_SUCCESS
+      - AXES_SENSITIVE_PARAMETERS
+      - ACCOUNTS_LOGIN_MAX_ATTEMPTS
+      - ACCOUNTS_LOGIN_WINDOW_SECONDS
+      - ACCOUNTS_LOCKOUT_SECONDS
+      - PLAYWRIGHT_WS_ENDPOINT
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      DJANGO_ENV: dev
+    command: [ "/app/.venv/bin/celery", "-A", "config", "worker", "--loglevel=info" ]
+    restart: unless-stopped
+    volumes:
+      - ./:/app:delegated
+      - app_venv:/app/.venv
+    networks:
+      - backend
+    secrets:
+      - DJANGO_SECRET_KEY
+      - DJANGO_DEBUG
+      - ALLOWED_HOSTS
+      - SITE_ID
+      - EMAIL_BACKEND
+      - EMAIL_HOST
+      - EMAIL_PORT
+      - EMAIL_USE_TLS
+      - EMAIL_HOST_USER
+      - EMAIL_HOST_PASSWORD
+      - DEFAULT_FROM_EMAIL
+      - CONTACT_EMAIL
+      - SECURITY_TEAM_EMAIL
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+      - REDIS_HOST
+      - REDIS_PORT
+      - REDIS_URL
+      - REDIS_CACHE_URL
+      - REDIS_SESSIONS_DB
+      - CELERY_BROKER_URL
+      - CELERY_RESULT_BACKEND
+      - CELERY_TASK_RESULT_EXPIRES
+      - HMAC_SECRET_KEY
+      - LOGGING_AUDIT_FALLBACK_ENABLED
+      - AUDITLOG_INCLUDE_ALL_MODELS
+      - AUDITLOG_EXCLUDE_TRACKING_FIELDS
+      - AUDITLOG_DISABLE_REMOTE_ADDR
+      - SECURE_SSL_REDIRECT
+      - SESSION_COOKIE_SECURE
+      - CSRF_COOKIE_SECURE
+      - SECURE_HSTS_SECONDS
+      - SECURE_HSTS_INCLUDE_SUBDOMAINS
+      - SECURE_HSTS_PRELOAD
+      - SECURE_CONTENT_TYPE_NOSNIFF
+      - SECURE_BROWSER_XSS_FILTER
+      - SECURE_PROXY_SSL_HEADER
+      - X_FRAME_OPTIONS
+      - SESSION_COOKIE_SAMESITE
+      - CSRF_COOKIE_SAMESITE
+      - CORS_ALLOW_ALL_ORIGINS
+      - CORS_ALLOWED_ORIGINS
+      - CORS_ALLOW_CREDENTIALS
+      - CORS_ALLOW_HEADERS
+      - CORS_ALLOW_METHODS
+      - CORS_URLS_REGEX
+      - CSP_REPORT_ONLY
+      - CSP_REPORT_URI
+      - CSP_DEFAULT_SRC
+      - CSP_SCRIPT_SRC
+      - CSP_STYLE_SRC
+      - CSP_IMG_SRC
+      - CSP_FONT_SRC
+      - CSP_CONNECT_SRC
+      - CSP_FRAME_SRC
+      - CSP_INCLUDE_NONCE_IN
+      - AXES_ENABLED
+      - AXES_FAILURE_LIMIT
+      - AXES_COOLOFF_TIME
+      - AXES_LOCKOUT_PARAMETERS
+      - AXES_USERNAME_FORM_FIELD
+      - AXES_IPWARE_META_PRECEDENCE_ORDER
+      - AXES_CACHE
+      - AXES_HANDLER
+      - AXES_RESET_ON_SUCCESS
+      - AXES_SENSITIVE_PARAMETERS
+      - ACCOUNTS_LOGIN_MAX_ATTEMPTS
+      - ACCOUNTS_LOGIN_WINDOW_SECONDS
+      - ACCOUNTS_LOCKOUT_SECONDS
+      - PLAYWRIGHT_WS_ENDPOINT
+
+  db-init:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      DJANGO_ENV: dev
+    # Run the mandb create command in a retry loop until the Postgres server is reachable
+    command: [ "sh", "-c", "until /app/.venv/bin/python3 manage.py mandb create; do echo 'Waiting for Postgres...'; sleep 5; done" ]
+    restart: "no"
+    volumes:
+      - ./:/app:delegated
+      - app_venv:/app/.venv
+    networks:
+      - backend
+    secrets:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+
+# Notes:
+# - This compose file expects `postgresql` and `redis` containers to be available on the external `backend` network.
+# - Remove source mounts for production images.
+# - Builds use BuildKit for uv cache mounts in the Dockerfile; enable with DOCKER_BUILDKIT=1.
+# - Ensure a .env file exists with DB credentials and other secrets (compose reads it via `env_file`).
+
+networks:
+  backend:
+    external: true
+
+secrets:
+  DJANGO_SECRET_KEY:
+    file: ./secrets/DJANGO_SECRET_KEY
+  DJANGO_DEBUG:
+    file: ./secrets/DJANGO_DEBUG
+  ALLOWED_HOSTS:
+    file: ./secrets/ALLOWED_HOSTS
+  SITE_ID:
+    file: ./secrets/SITE_ID
+  EMAIL_BACKEND:
+    file: ./secrets/EMAIL_BACKEND
+  EMAIL_HOST:
+    file: ./secrets/EMAIL_HOST
+  EMAIL_PORT:
+    file: ./secrets/EMAIL_PORT
+  EMAIL_USE_TLS:
+    file: ./secrets/EMAIL_USE_TLS
+  EMAIL_HOST_USER:
+    file: ./secrets/EMAIL_HOST_USER
+  EMAIL_HOST_PASSWORD:
+    file: ./secrets/EMAIL_HOST_PASSWORD
+  DEFAULT_FROM_EMAIL:
+    file: ./secrets/DEFAULT_FROM_EMAIL
+  CONTACT_EMAIL:
+    file: ./secrets/CONTACT_EMAIL
+  SECURITY_TEAM_EMAIL:
+    file: ./secrets/SECURITY_TEAM_EMAIL
+  POSTGRES_USER:
+    file: ./secrets/POSTGRES_USER
+  POSTGRES_PASSWORD:
+    file: ./secrets/POSTGRES_PASSWORD
+  POSTGRES_HOST:
+    file: ./secrets/POSTGRES_HOST
+  POSTGRES_PORT:
+    file: ./secrets/POSTGRES_PORT
+  REDIS_HOST:
+    file: ./secrets/REDIS_HOST
+  REDIS_PORT:
+    file: ./secrets/REDIS_PORT
+  REDIS_URL:
+    file: ./secrets/REDIS_URL
+  REDIS_CACHE_URL:
+    file: ./secrets/REDIS_CACHE_URL
+  REDIS_SESSIONS_DB:
+    file: ./secrets/REDIS_SESSIONS_DB
+  CELERY_BROKER_URL:
+    file: ./secrets/CELERY_BROKER_URL
+  CELERY_RESULT_BACKEND:
+    file: ./secrets/CELERY_RESULT_BACKEND
+  CELERY_TASK_RESULT_EXPIRES:
+    file: ./secrets/CELERY_TASK_RESULT_EXPIRES
+  HMAC_SECRET_KEY:
+    file: ./secrets/HMAC_SECRET_KEY
+  LOGGING_AUDIT_FALLBACK_ENABLED:
+    file: ./secrets/LOGGING_AUDIT_FALLBACK_ENABLED
+  AUDITLOG_INCLUDE_ALL_MODELS:
+    file: ./secrets/AUDITLOG_INCLUDE_ALL_MODELS
+  AUDITLOG_EXCLUDE_TRACKING_FIELDS:
+    file: ./secrets/AUDITLOG_EXCLUDE_TRACKING_FIELDS
+  AUDITLOG_DISABLE_REMOTE_ADDR:
+    file: ./secrets/AUDITLOG_DISABLE_REMOTE_ADDR
+  SECURE_SSL_REDIRECT:
+    file: ./secrets/SECURE_SSL_REDIRECT
+  SESSION_COOKIE_SECURE:
+    file: ./secrets/SESSION_COOKIE_SECURE
+  CSRF_COOKIE_SECURE:
+    file: ./secrets/CSRF_COOKIE_SECURE
+  SECURE_HSTS_SECONDS:
+    file: ./secrets/SECURE_HSTS_SECONDS
+  SECURE_HSTS_INCLUDE_SUBDOMAINS:
+    file: ./secrets/SECURE_HSTS_INCLUDE_SUBDOMAINS
+  SECURE_HSTS_PRELOAD:
+    file: ./secrets/SECURE_HSTS_PRELOAD
+  SECURE_CONTENT_TYPE_NOSNIFF:
+    file: ./secrets/SECURE_CONTENT_TYPE_NOSNIFF
+  SECURE_BROWSER_XSS_FILTER:
+    file: ./secrets/SECURE_BROWSER_XSS_FILTER
+  SECURE_PROXY_SSL_HEADER:
+    file: ./secrets/SECURE_PROXY_SSL_HEADER
+  X_FRAME_OPTIONS:
+    file: ./secrets/X_FRAME_OPTIONS
+  SESSION_COOKIE_SAMESITE:
+    file: ./secrets/SESSION_COOKIE_SAMESITE
+  CSRF_COOKIE_SAMESITE:
+    file: ./secrets/CSRF_COOKIE_SAMESITE
+  CORS_ALLOW_ALL_ORIGINS:
+    file: ./secrets/CORS_ALLOW_ALL_ORIGINS
+  CORS_ALLOWED_ORIGINS:
+    file: ./secrets/CORS_ALLOWED_ORIGINS
+  CORS_ALLOW_CREDENTIALS:
+    file: ./secrets/CORS_ALLOW_CREDENTIALS
+  CORS_ALLOW_HEADERS:
+    file: ./secrets/CORS_ALLOW_HEADERS
+  CORS_ALLOW_METHODS:
+    file: ./secrets/CORS_ALLOW_METHODS
+  CORS_URLS_REGEX:
+    file: ./secrets/CORS_URLS_REGEX
+  CSP_REPORT_ONLY:
+    file: ./secrets/CSP_REPORT_ONLY
+  CSP_REPORT_URI:
+    file: ./secrets/CSP_REPORT_URI
+  CSP_DEFAULT_SRC:
+    file: ./secrets/CSP_DEFAULT_SRC
+  CSP_SCRIPT_SRC:
+    file: ./secrets/CSP_SCRIPT_SRC
+  CSP_STYLE_SRC:
+    file: ./secrets/CSP_STYLE_SRC
+  CSP_IMG_SRC:
+    file: ./secrets/CSP_IMG_SRC
+  CSP_FONT_SRC:
+    file: ./secrets/CSP_FONT_SRC
+  CSP_CONNECT_SRC:
+    file: ./secrets/CSP_CONNECT_SRC
+  CSP_FRAME_SRC:
+    file: ./secrets/CSP_FRAME_SRC
+  CSP_INCLUDE_NONCE_IN:
+    file: ./secrets/CSP_INCLUDE_NONCE_IN
+  AXES_ENABLED:
+    file: ./secrets/AXES_ENABLED
+  AXES_FAILURE_LIMIT:
+    file: ./secrets/AXES_FAILURE_LIMIT
+  AXES_COOLOFF_TIME:
+    file: ./secrets/AXES_COOLOFF_TIME
+  AXES_LOCKOUT_PARAMETERS:
+    file: ./secrets/AXES_LOCKOUT_PARAMETERS
+  AXES_USERNAME_FORM_FIELD:
+    file: ./secrets/AXES_USERNAME_FORM_FIELD
+  AXES_IPWARE_META_PRECEDENCE_ORDER:
+    file: ./secrets/AXES_IPWARE_META_PRECEDENCE_ORDER
+  AXES_CACHE:
+    file: ./secrets/AXES_CACHE
+  AXES_HANDLER:
+    file: ./secrets/AXES_HANDLER
+  AXES_RESET_ON_SUCCESS:
+    file: ./secrets/AXES_RESET_ON_SUCCESS
+  AXES_SENSITIVE_PARAMETERS:
+    file: ./secrets/AXES_SENSITIVE_PARAMETERS
+  ACCOUNTS_LOGIN_MAX_ATTEMPTS:
+    file: ./secrets/ACCOUNTS_LOGIN_MAX_ATTEMPTS
+  ACCOUNTS_LOGIN_WINDOW_SECONDS:
+    file: ./secrets/ACCOUNTS_LOGIN_WINDOW_SECONDS
+  ACCOUNTS_LOCKOUT_SECONDS:
+    file: ./secrets/ACCOUNTS_LOCKOUT_SECONDS
+  PLAYWRIGHT_WS_ENDPOINT:
+    file: ./secrets/PLAYWRIGHT_WS_ENDPOINT
+
+volumes:
+  app_venv:
+    name: kasi_app_venv

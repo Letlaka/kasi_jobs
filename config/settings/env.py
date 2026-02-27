@@ -24,8 +24,13 @@ if environ is not None:
         EMAIL_USE_TLS=(bool, True),
         # Database settings
         POSTGRES_PORT=(int, 5432),
+        POSTGRES_HOST=(str, None),
+        POSTGRES_DB=(str, None),
+        POSTGRES_USER=(str, None),
+        POSTGRES_PASSWORD=(str, None),
         # Celery settings
         CELERY_BROKER_URL=(str, "redis://localhost:6379/0"),
+        CELERY_RESULT_BACKEND=(str, "redis://localhost:6379/0"),
         CELERY_TASK_RESULT_EXPIRES=(int, 3600),
         # Security & HTTPS settings
         SECURE_SSL_REDIRECT=(bool, False),
@@ -38,6 +43,7 @@ if environ is not None:
         # Security settings
         SECURE_CONTENT_TYPE_NOSNIFF=(bool, True),
         SECURE_BROWSER_XSS_FILTER=(bool, True),
+        SECURE_PROXY_SSL_HEADER=(str, "HTTP_X_FORWARDED_PROTO, http"),
         proxy_header=(str, "HTTP_X_FORWARDED_PROTO, http"),
         # Clickjacking protection
         X_FRAME_OPTIONS=(str, "X_FRAME_OPTIONS"),
@@ -80,7 +86,7 @@ if environ is not None:
         CSP_CONNECT_SRC=(list, ["'self'"]),
         CSP_FRAME_SRC=(list, ["'self'"]),
         CSP_INCLUDE_NONCE_IN=(str, "script-src,style-src"),
-        CSP_REPORT_ONLY=(bool, True),
+        CSP_REPORT_ONLY=(bool, False),
         CSP_REPORT_URI=(str, "CSP_REPORT_URI"),
         # django-axes settings
         AXES_ENABLED=(bool, True),
@@ -114,8 +120,16 @@ if environ is not None:
 
     import contextlib
 
-    with contextlib.suppress(Exception):
-        env.read_env(BASE_DIR / ".env")
+    # Only load a local `.env` file when running in a development-like
+    # environment. Accept both `development` and `dev` (and common aliases)
+    # so `DJANGO_ENV=dev` works in docker-compose while still preventing
+    # accidental `.env` loads in production.
+    django_env = os.getenv("DJANGO_ENV", "development") or "development"
+    if str(django_env).lower() in ("development", "dev", "local") or str(
+        django_env
+    ).lower().startswith("dev"):
+        with contextlib.suppress(Exception):
+            env.read_env(BASE_DIR / ".env")
 else:
 
     class _FallbackEnv:
@@ -221,3 +235,13 @@ def get_ad_config() -> ADConfig:
         use_ssl=use_ssl,
         port=port,
     )
+
+
+# Helper to require a value from the environment. This mirrors the simple
+# behaviour used elsewhere but centralises the check so callers can fail
+# fast when a critical secret is missing.
+def require_env(key: str) -> str:
+    value = env(key)
+    if not value:
+        raise RuntimeError(f"Missing required environment variable: {key}")
+    return str(value)

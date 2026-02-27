@@ -1,0 +1,63 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Virtual environments and env files
+.env
+.env.*
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Test / coverage / caches
+.pytest_cache/
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.cache/
+pip-log.txt
+
+# Django
+*.sqlite3
+media/
+staticfiles/
+local_settings.py
+
+# Logs
+logs/
+*.log
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*~
+.project
+.metadata
+
+# Git
+.git/
+
+# Node
+node_modules/
+
+# Misc
+*.pem
+*.key
+*.crt

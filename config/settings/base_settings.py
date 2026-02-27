@@ -21,7 +21,7 @@ from . import (
 )
 
 try:
-    from .env import env
+    from .env import env, require_env
 except (ImportError, ModuleNotFoundError):
 
     class _FallbackEnv:
@@ -77,9 +77,11 @@ for _mod in (
 
 
 # Basic / core settings
-SECRET_KEY = env("DJANGO_SECRET_KEY")
-# Fail-fast for critical secrets: do not allow predictable or missing keys.
-if not SECRET_KEY or str(SECRET_KEY).strip() in ("", "DJANGO_SECRET_KEY"):
+# Require the `DJANGO_SECRET_KEY` explicitly to avoid starting with an
+# insecure or missing secret in production.
+SECRET_KEY = require_env("DJANGO_SECRET_KEY")
+# Additional sanity check to prevent placeholder values being used.
+if str(SECRET_KEY).strip() in ("", "DJANGO_SECRET_KEY"):
     raise ImproperlyConfigured(
         "Missing or insecure DJANGO_SECRET_KEY environment variable. "
         "Set a strong secret in the environment before starting the application."

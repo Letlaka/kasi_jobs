@@ -13,3 +13,4 @@ wheels/
 .static/*
 .staticfiles/*
 .media/*
+secrets/*

@@ -24,6 +24,8 @@ SECURE_BROWSER_XSS_FILTER = env.bool("SECURE_BROWSER_XSS_FILTER", default=True)
 
 X_FRAME_OPTIONS = env("X_FRAME_OPTIONS") or "DENY"
 
+CSP_REPORT_ONLY = env.bool("CSP_REPORT_ONLY", default=False)
+
 # Fail-fast if critical production security settings are not enabled
 if DEBUG:
     raise ImproperlyConfigured("Production settings must set DEBUG=False")

@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 try:
@@ -23,8 +24,11 @@ else:
         )
         import contextlib
 
-        with contextlib.suppress(Exception):
-            env.read_env(BASE_DIR / ".env")
+        # Only load .env when developing locally so CI/production secrets are
+        # not overridden by a repository .env file or local file.
+        if os.getenv("DJANGO_ENV", "development") == "development":
+            with contextlib.suppress(Exception):
+                env.read_env(BASE_DIR / ".env")
     except (ImportError, ModuleNotFoundError):
         env = None
 
