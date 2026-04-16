@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import timedelta
+
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 25,
@@ -33,15 +35,15 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Fleet/School Shuttle API",
-    "DESCRIPTION": "API documentation for Fleet/School Shuttle API endpoints",
+    "TITLE": "Kasi Jobs API",
+    "DESCRIPTION": "API documentation for the Kasi Jobs platform",
     "VERSION": "1.0.0",
 }
 
 # Simple JWT defaults. Adjust lifetimes and rotation to suit your security policy.
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": 300,  # seconds (5 minutes) - tune as needed
-    "REFRESH_TOKEN_LIFETIME": 60 * 60 * 24 * 7,  # 7 days
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     # Use sliding tokens or additional settings as needed

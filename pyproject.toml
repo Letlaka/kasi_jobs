@@ -41,7 +41,6 @@ dependencies = [
     "ms-active-directory>=1.14.1",
     "defusedxml>=0.7.1",
     "phonenumbers>=9.0.22",
-    "pytest-django>=4.11.1",
     "uvicorn>=0.41.0",
 ]
 
@@ -66,6 +65,7 @@ dev = [
 "djhtml>=3.0.10",
 "mypy>=1.19.1",
 "pre-commit>=4.5.1",
+"pytest-django>=4.11.1",
 "ruff>=0.14.9",
 "types-redis>=4.6.0.20241004",
 "types-openpyxl>=3.1.5.20250919",
