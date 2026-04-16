@@ -1,5 +1,6 @@
 from typing import ClassVar, cast
 
+from applications.models import Application
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -89,8 +90,6 @@ class Review(AuditedModel):
 
             if reviewer is not None:
                 # Reviewer must have an accepted application for this job.
-                from applications.models import Application  # noqa: PLC0415
-
                 has_accepted = Application.objects.filter(  # type: ignore[attr-defined]
                     job=job,
                     seeker=reviewer,

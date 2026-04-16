@@ -213,12 +213,12 @@ class ApplicationViewSet(viewsets.ModelViewSet):
                 try:
                     qs = qs.filter(job_id=int(job_param))
                 except (ValueError, TypeError):
-                    raise ParseError("Invalid 'job' filter: expected an integer.")
+                    raise ParseError("Invalid job filter value.")
             if seeker_param:
                 try:
                     qs = qs.filter(seeker_id=int(seeker_param))
                 except (ValueError, TypeError):
-                    raise ParseError("Invalid 'seeker' filter: expected an integer.")
+                    raise ParseError("Invalid seeker filter value.")
             if status_param:
                 qs = qs.filter(status=status_param)
 

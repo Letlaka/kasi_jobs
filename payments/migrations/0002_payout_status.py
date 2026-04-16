@@ -42,6 +42,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="payout",
-            index=models.Index(fields=["status"], name="payments_pa_status_idx"),
+            index=models.Index(fields=["status"], name="payments_payout_status_idx"),
         ),
     ]

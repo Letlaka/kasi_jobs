@@ -38,5 +38,5 @@ class Payout(AuditedModel):
         indexes: ClassVar[list[models.Index]] = [
             models.Index(fields=["job"]),
             models.Index(fields=["seeker"]),
-            models.Index(fields=["status"]),
+            models.Index(fields=["status"], name="payments_payout_status_idx"),
         ]
