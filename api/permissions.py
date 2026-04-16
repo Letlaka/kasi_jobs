@@ -6,6 +6,12 @@ from rest_framework.views import APIView
 class IsPosterOrReadOnly(BasePermission):
     """Allow safe methods for everyone, but write only for the job poster or staff."""
 
+    def has_permission(self, request: Request, _view: APIView) -> bool:
+        # Allow read operations for everyone; write operations require authentication.
+        if request.method in SAFE_METHODS:
+            return True
+        return bool(request.user and request.user.is_authenticated)
+
     def has_object_permission(self, request: Request, _view: APIView, obj: object) -> bool:
         if request.method in SAFE_METHODS:
             return True

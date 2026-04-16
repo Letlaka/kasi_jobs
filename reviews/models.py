@@ -1,6 +1,7 @@
 from typing import ClassVar, cast
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from jobs.models import Job
 
@@ -27,7 +28,11 @@ class Review(AuditedModel):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("job", "reviewer")
+        constraints: ClassVar[list[models.BaseConstraint]] = [
+            models.UniqueConstraint(
+                fields=["job", "reviewer"], name="unique_review_job_reviewer"
+            ),
+        ]
         indexes: ClassVar[list[models.Index]] = [
             models.Index(fields=["job"]),
             models.Index(fields=["reviewer"]),
@@ -64,3 +69,35 @@ class Review(AuditedModel):
                 field="rating",
             )
             raise
+
+        # Business rules: only completed jobs may be reviewed; poster cannot
+        # review their own job; reviewer must be a seeker with an accepted application.
+        job = getattr(self, "job", None)
+        reviewer = getattr(self, "reviewer", None)
+        if job is not None:
+            job_status = getattr(job, "status", None)
+            if job_status != Job.JobStatus.COMPLETED:
+                raise ValidationError(
+                    "Reviews can only be left for completed jobs.", code="job_not_completed"
+                )
+
+            poster = getattr(job, "poster", None)
+            if poster is not None and poster == reviewer:
+                raise ValidationError(
+                    "The job poster cannot review their own job.", code="poster_self_review"
+                )
+
+            if reviewer is not None:
+                # Reviewer must have an accepted application for this job.
+                from applications.models import Application  # noqa: PLC0415
+
+                has_accepted = Application.objects.filter(  # type: ignore[attr-defined]
+                    job=job,
+                    seeker=reviewer,
+                    status=Application.ApplicationStatus.ACCEPTED,
+                ).exists()
+                if not has_accepted:
+                    raise ValidationError(
+                        "Reviewer must have an accepted application for this job.",
+                        code="no_accepted_application",
+                    )

@@ -19,7 +19,7 @@ from rest_framework import (
     viewsets,
 )
 from rest_framework.decorators import action
-from rest_framework.exceptions import MethodNotAllowed, Throttled
+from rest_framework.exceptions import MethodNotAllowed, ParseError, Throttled
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -210,11 +210,15 @@ class ApplicationViewSet(viewsets.ModelViewSet):
             seeker_param = self.request.query_params.get("seeker")
             status_param = self.request.query_params.get("status")
             if job_param:
-                with contextlib.suppress(Exception):
+                try:
                     qs = qs.filter(job_id=int(job_param))
+                except (ValueError, TypeError):
+                    raise ParseError("Invalid 'job' filter: expected an integer.")
             if seeker_param:
-                with contextlib.suppress(Exception):
+                try:
                     qs = qs.filter(seeker_id=int(seeker_param))
+                except (ValueError, TypeError):
+                    raise ParseError("Invalid 'seeker' filter: expected an integer.")
             if status_param:
                 qs = qs.filter(status=status_param)
 

@@ -105,7 +105,7 @@ ignore_missing_model_attributes = true
 line-length = 100
 target-version = "py313"
 fix = true
-src = [ "core", "accounts", "utilities" ]
+src = [ "." ]
 extend-exclude = [ "**/migrations/**", "**/.venv/**", "pyproject.toml" ]
 force-exclude = true
 
@@ -153,10 +153,40 @@ ignore = [ "E203" ]
 "BLE001",
 "F841"
 ]
+"accounts/tests/*.py" = [
+"S101",
+"PLR2004",
+"N806",
+"S106",
+"PLC0415",
+"ARG001",
+"BLE001",
+"F841"
+]
+"profiles/tests/*.py" = [
+"S101",
+"PLR2004",
+"N806",
+"S106",
+"PLC0415",
+"ARG001",
+"BLE001",
+"F841"
+]
+"**/test_*.py" = [
+"S101",
+"PLR2004",
+"N806",
+"S106",
+"PLC0415",
+"ARG001",
+"BLE001",
+"F841"
+]
 
 
 [tool.ruff.lint.isort]
-known-first-party = [ "core", "accounts", "utilities" ]
+known-first-party = [ "accounts", "api", "applications", "config", "core", "jobs", "payments", "profiles", "reviews", "services", "utilities" ]
 combine-as-imports = true
 
 

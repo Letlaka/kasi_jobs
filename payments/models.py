@@ -11,10 +11,22 @@ AUTH_USER_MODEL: str = getattr(settings, "AUTH_USER_MODEL", "accounts.User")
 
 
 class Payout(AuditedModel):
+    class PayoutStatus(models.TextChoices):
+        PENDING = "pending", "Pending"
+        PROCESSING = "processing", "Processing"
+        COMPLETED = "completed", "Completed"
+        FAILED = "failed", "Failed"
+        REFUNDED = "refunded", "Refunded"
+
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="payouts")
     seeker = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="payouts")
 
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(
+        max_length=32,
+        choices=PayoutStatus.choices,
+        default=PayoutStatus.PENDING,
+    )
     processed_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self) -> str:
@@ -26,4 +38,5 @@ class Payout(AuditedModel):
         indexes: ClassVar[list[models.Index]] = [
             models.Index(fields=["job"]),
             models.Index(fields=["seeker"]),
+            models.Index(fields=["status"]),
         ]

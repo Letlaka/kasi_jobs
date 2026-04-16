@@ -2,7 +2,7 @@ import logging
 import mimetypes
 import os
 from decimal import Decimal
-from typing import ClassVar, cast
+from typing import BinaryIO, ClassVar, cast
 
 from django.conf import settings
 from django.core import signing
@@ -60,7 +60,7 @@ class SeekerProfile(BaseProfile):
     MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5 MiB
     ALLOWED_MIME_TYPES = {"application/pdf", "image/png", "image/jpeg"}
 
-    def _detect_mime(self, file_obj) -> str | None:
+    def _detect_mime(self, file_obj: BinaryIO) -> str | None:
         """Detect MIME type using python-magic when available, else by filename."""
         try:
             import magic
@@ -75,7 +75,7 @@ class SeekerProfile(BaseProfile):
             mime, _ = mimetypes.guess_type(name)
             return mime
 
-    def _scan_for_viruses(self, file_obj) -> tuple[bool, str | None] | None:
+    def _scan_for_viruses(self, file_obj: BinaryIO) -> tuple[bool, str | None] | None:
         """Scan file using ClamAV (python-clamd). Returns (True, None) if clean,
         (False, signature) if infected, or None if no scanner available."""
         try:
@@ -243,47 +243,3 @@ class SeekerProfile(BaseProfile):
     def __str__(self) -> str:
         username = getattr(self.user, "username", str(self.user))
         return f"{username}'s seeker profile"
-
-    def clean(self) -> None:
-        """Sanitize and validate seeker-specific fields."""
-        super().clean()
-
-        logger = get_logger(__name__)
-
-        # Sanitize textual fields
-        self.availability_notes = sanitize_text_field(
-            cast("str | None", self.availability_notes), max_length=255
-        )
-
-        # Validate hourly_rate if present
-        if self.hourly_rate is not None:
-            try:
-                validate_decimal_range(
-                    cast("str | int | float | Decimal", self.hourly_rate),
-                    min_value=Decimal("0"),
-                )
-            except Exception:
-                log_event(
-                    logger,
-                    log_name=LogName.APPLICATION,
-                    event_code=EventCode.AUDIT_VALIDATION_DECIMAL_FAILED,
-                    event="seeker_hourly_rate_invalid",
-                    field="hourly_rate",
-                )
-                raise
-
-        # Validate willing_to_travel_km range (if set)
-        if self.willing_to_travel_km is not None:
-            try:
-                travel = cast("int | float | str", self.willing_to_travel_km)
-                if not (0 <= int(travel) <= MAX_TRAVEL_KM):
-                    raise ValueError("willing_to_travel_km out of range")
-            except Exception:
-                log_event(
-                    logger,
-                    log_name=LogName.APPLICATION,
-                    event_code=EventCode.AUDIT_VALIDATION_DECIMAL_FAILED,
-                    event="seeker_travel_km_invalid",
-                    field="willing_to_travel_km",
-                )
-                raise

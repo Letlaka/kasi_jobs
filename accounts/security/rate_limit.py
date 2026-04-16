@@ -10,6 +10,7 @@ from config.settings.env import env
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.utils import timezone
+from ipware import get_client_ip as _ipware_get_client_ip
 
 from utilities import get_logger, log_event
 from utilities.app_logging.event_codes import EventCode, LogName
@@ -23,19 +24,22 @@ RATE_LIMIT_LOCKOUT = env.int("ACCOUNTS_LOCKOUT_SECONDS")
 
 
 def get_client_ip(request: object | None) -> str | None:
+    """Return the client IP, using django-ipware for trusted-proxy-aware resolution.
+
+    Falls back to REMOTE_ADDR for non-HttpRequest objects (e.g. in unit tests).
+    """
     if request is None:
         return None
-
-    meta = getattr(request, "META", None)
-    if not isinstance(meta, Mapping):
-        return None
-
-    xff = meta.get("HTTP_X_FORWARDED_FOR")
-    if isinstance(xff, str) and xff:
-        return xff.split(",")[0].strip()
-
-    remote = meta.get("REMOTE_ADDR")
-    return remote if isinstance(remote, str) else None
+    try:
+        ip, _ = _ipware_get_client_ip(request)  # type: ignore[arg-type]
+        return ip
+    except Exception:
+        # Fallback for non-HttpRequest objects (e.g., signal handlers in tests).
+        meta = getattr(request, "META", None)
+        if not isinstance(meta, Mapping):
+            return None
+        remote = meta.get("REMOTE_ADDR")
+        return remote if isinstance(remote, str) else None
 
 
 def increment_cache_counter(key: str | None) -> int:

@@ -20,9 +20,9 @@ def private_file_view(request, token: str):
     try:
         max_age = getattr(settings, "SIGNED_URL_MAX_AGE", None)
         if max_age is None:
-            payload = loads(token)
+            payload = loads(token, salt="profiles.id_doc")
         else:
-            payload = loads(token, max_age=max_age)
+            payload = loads(token, max_age=max_age, salt="profiles.id_doc")
     except SignatureExpired:
         raise Http404("Token expired")
     except BadSignature:
