@@ -13,6 +13,6 @@ CACHES = {
     }
 }
 
-# Sessions stored in cache (optional; choose cached_db or cache-based sessions)
-SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# Sessions stored in cache with database fallback for resilience
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 SESSION_CACHE_ALIAS = "default"

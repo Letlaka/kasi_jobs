@@ -51,6 +51,9 @@ class Application(AuditedModel):
             # WHERE seeker_id = X ORDER BY applied_at DESC
             models.Index(fields=["seeker", "applied_at"], name="apps_seeker_applied_at_idx"),
         ]
+        constraints: ClassVar[list[models.BaseConstraint]] = [
+            models.UniqueConstraint(fields=["job", "seeker"], name="unique_application_job_seeker"),
+        ]
 
     def clean(self) -> None:
         """Sanitize and validate fields before saving."""

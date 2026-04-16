@@ -54,6 +54,12 @@ except (ImportError, ModuleNotFoundError):
 
     env = _FallbackEnv()
 
+    def require_env(key: str) -> str:
+        value = os.environ.get(key)
+        if not value:
+            raise RuntimeError(f"Missing required environment variable: {key}")
+        return str(value)
+
 
 # Base dir
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -143,8 +149,8 @@ SITE_ID = int(raw_site_id) if raw_site_id not in (None, "") else 1
 
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
-    "api.middleware.ApiExceptionMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "api.middleware.ApiExceptionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "csp.middleware.CSPMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -201,7 +207,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # django-allauth sane defaults
 ACCOUNT_LOGIN_METHODS = {"username", "email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
-ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/"

@@ -14,6 +14,8 @@ from utilities.validators import sanitize_text_field, validate_decimal_range
 AUTH_USER_MODEL: str = getattr(settings, "AUTH_USER_MODEL", "accounts.User")
 MAX_ESTIMATED_HOURS = 10000
 
+logger = get_logger(__name__)
+
 
 class Job(AuditedModel):
     poster = models.ForeignKey(
@@ -58,8 +60,6 @@ class Job(AuditedModel):
     def clean(self) -> None:
         """Sanitize and validate job fields before saving."""
         super().clean()
-
-        logger = get_logger(__name__)
 
         # Sanitize textual fields
         self.title = sanitize_text_field(cast("str | None", self.title), max_length=255)

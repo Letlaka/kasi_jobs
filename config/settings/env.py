@@ -46,10 +46,10 @@ if environ is not None:
         SECURE_PROXY_SSL_HEADER=(str, "HTTP_X_FORWARDED_PROTO, http"),
         proxy_header=(str, "HTTP_X_FORWARDED_PROTO, http"),
         # Clickjacking protection
-        X_FRAME_OPTIONS=(str, "X_FRAME_OPTIONS"),
+        X_FRAME_OPTIONS=(str, "DENY"),
         # Optional: Cookie samesite settings
-        SESSION_COOKIE_SAMESITE=(str, "SESSION_COOKIE_SAMESITE"),
-        CSRF_COOKIE_SAMESITE=(str, "CSRF_COOKIE_SAMESITE"),
+        SESSION_COOKIE_SAMESITE=(str, "Lax"),
+        CSRF_COOKIE_SAMESITE=(str, "Lax"),
         # django-auditlog global settings (POPIA / privacy friendly defaults)
         AUDITLOG_INCLUDE_ALL_MODELS=(bool, False),
         AUDITLOG_EXCLUDE_TRACKING_FIELDS=(
@@ -76,7 +76,7 @@ if environ is not None:
             ],
         ),
         CORS_ALLOW_METHODS=(list, ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]),
-        CORS_URLS_REGEX=(str, "CORS_URLS_REGEX"),
+        CORS_URLS_REGEX=(str, r"^/api/.*$"),
         # Content Security Policy (CSP) settings
         CSP_DEFAULT_SRC=(list, ["'self'"]),
         CSP_SCRIPT_SRC=(list, ["'self'"]),
@@ -87,7 +87,7 @@ if environ is not None:
         CSP_FRAME_SRC=(list, ["'self'"]),
         CSP_INCLUDE_NONCE_IN=(str, "script-src,style-src"),
         CSP_REPORT_ONLY=(bool, False),
-        CSP_REPORT_URI=(str, "CSP_REPORT_URI"),
+        CSP_REPORT_URI=(str, ""),
         # django-axes settings
         AXES_ENABLED=(bool, True),
         AXES_FAILURE_LIMIT=(int, 5),
@@ -114,8 +114,8 @@ if environ is not None:
         AD_WORKERS=(int, 20),
         AD_BULK_EXPORT=(bool, True),
         AD_PAGED_SIZE=(int, 1000),
-        AD_PORT=(int, "AD_PORT"),
-        AD_USE_SSL=(bool, "AD_USE_SSL"),
+        AD_PORT=(int, 0),
+        AD_USE_SSL=(bool, False),
     )
 
     import contextlib
