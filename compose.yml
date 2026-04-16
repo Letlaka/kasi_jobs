@@ -104,8 +104,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - .env
     environment:
       DJANGO_ENV: dev
     command: [ "/app/.venv/bin/celery", "-A", "config", "worker", "--loglevel=info" ]
@@ -193,8 +191,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - .env
     environment:
       DJANGO_ENV: dev
     # Run the mandb create command in a retry loop until the Postgres server is reachable

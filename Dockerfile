@@ -1,6 +1,6 @@
+# syntax=docker/dockerfile:1.4
 # Stage 1: Base build stage
 FROM python:3.13-slim AS builder
-# syntax=docker/dockerfile:1.4
 ## Builder: use `uv` to create a reproducible environment and install project
 
 # Copy uv binary from official uv image (pin to a version)

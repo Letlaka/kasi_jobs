@@ -14,6 +14,17 @@ Implementation notes (current repo)
 
 This helps avoid accidental data exposure and keeps business logic centralized.
 
+## Prometheus metrics endpoint
+
+The `/metrics` endpoint (used by Prometheus scrapers) is protected with Django's
+`staff_member_required` decorator, requiring an authenticated staff session.
+
+**Production hardening recommendation:** In addition to the Django-level guard, restrict
+access to `/metrics` at the network/load-balancer layer (e.g., by IP allowlist or a
+dedicated internal network interface). Monitoring scrapers should authenticate via a
+dedicated service account or by operating on a private network segment, **not** by
+exposing the endpoint publicly even with authentication.
+
 ## Dependency scanning and weekly audits
 
 We run automated dependency scans to detect known vulnerabilities in Python packages.

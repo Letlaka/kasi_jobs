@@ -2,8 +2,10 @@ from typing import ClassVar
 
 from django.db import models
 
+from utilities.models import AuditedModel
 
-class Skill(models.Model):
+
+class Skill(AuditedModel):
     name = models.CharField(max_length=64, unique=True)
 
     class Meta:

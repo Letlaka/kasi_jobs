@@ -29,7 +29,7 @@ class Command(BaseCommand):
         fmt = options.get("format")
         out_path = options.get("output")
 
-        qs = ApplicationAction.objects.filter(application_id=app_id).order_by("created_at")  # type: ignore[attr-defined]
+        qs = ApplicationAction.objects.filter(application_id=app_id).order_by("performed_at")  # type: ignore[attr-defined]
 
         if not qs.exists():
             raise CommandError(f"no audit rows found for application id={app_id}")
@@ -37,13 +37,14 @@ class Command(BaseCommand):
         if fmt == "json":
             data = serializers.serialize("json", qs, indent=2)
             if out_path:
-                Path(str(out_path)).expanduser().open("w", encoding="utf-8").write(data)
+                with Path(str(out_path)).expanduser().open("w", encoding="utf-8") as out_f:
+                    out_f.write(data)
             else:
                 self.stdout.write(data)
             return
 
         # CSV format
-        fields = ["id", "application_id", "action", "performed_by_id", "created_at", "metadata"]
+        fields = ["id", "application_id", "action", "performed_by_id", "performed_at", "metadata"]
 
         def iter_rows(qs: Iterable[object]) -> Iterator[dict]:
             for obj in qs:
@@ -54,7 +55,7 @@ class Command(BaseCommand):
                     or getattr(obj, "application", None),
                     "action": getattr(obj, "action", None),
                     "performed_by_id": getattr(getattr(obj, "performed_by", None), "id", None),
-                    "created_at": performed_at.isoformat() if performed_at else None,
+                    "performed_at": performed_at.isoformat() if performed_at else None,
                     "metadata": json.dumps(getattr(obj, "metadata", {}) or {}),
                 }
 

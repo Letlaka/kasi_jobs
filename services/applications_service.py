@@ -27,6 +27,10 @@ from services.dispatch import emit_background_task
 from utilities.app_logging.event_codes import EventCode, LogName
 from utilities.app_logging.helpers import get_logger, log_event
 
+# Canonical service entry point for application workflow operations (accept/reject).
+# Views and other callers must import from this module; services/applications.py
+# has been removed to eliminate the duplicate.
+
 # Backwards-compatible alias some callers/tests expect
 ApplicationError = ApiError
 
