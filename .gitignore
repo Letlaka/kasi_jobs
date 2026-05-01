@@ -14,3 +14,7 @@ wheels/
 .staticfiles/*
 .media/*
 secrets/*
+logs/application.log
+logs/audit.log
+logs/security.log
+logs/system.log
